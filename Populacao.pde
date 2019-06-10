@@ -1,88 +1,87 @@
-class Populacao{
-  Agente[] agentes;
-  int size = 0;
+class Populacao {
+  Cromossomo[] cromossomos;
   
-  Populacao(int size) {
-    this.size = size;
-    agentes = new Agente[size];
-    for (int i = 0; i< size; i++) {
-      agentes[i] = new Agente();
+  Populacao() {
+    cromossomos = new Cromossomo[tamanho];
+    for (int i = 0; i < tamanho; i++) {
+      cromossomos[i] = new Cromossomo();
     }
   }
   
-  void show(){
-    fill(0, 255, 0);
-    for(int i= 0; i < size; i++){
-      ellipse(agentes[i].pos.x, agentes[i].pos.y, 8, 8);
+  void show() {
+    fill(255, 255, 0);
+    for (int i= 0; i < tamanho; i++) {
+      ellipse(cromossomos[i].pos.x, cromossomos[i].pos.y, 8, 8);
     }
   }
   
-  void move(){
-      for(int i= 0; i < size; i++){
-        agentes[i].move();
+  void move() {
+      for (int i= 0; i < tamanho; i++) {
+        cromossomos[i].move();
       }
   }
   
-  boolean finalizou(){
-    for(int i= 0; i < size; i++){
-      if (!(agentes[i].acertou || agentes[i].morto)){
+  boolean finalizou() {
+    for (int i= 0; i < tamanho; i++) {
+      if (!(cromossomos[i].acertou || cromossomos[i].parado)) {
         return false;
       }
     }
     return true;
   }
   
-  void proxGeracao(){
-    calcFitness();
-    print("calculou o fitness \n");
-    Agente[] agentesNovos = new Agente[size];
-    print("criou o agente novo \n");
-    for(int i= 0; i < size; i++){
-      agentesNovos[i] = new Agente();
-      Movimentos m = new Movimentos(1000);
-      for (int j= 0; j < 1000; j++){
-        m.direcao[j] = selecionaPai().mov.direcao[j].copy();
+  int cromossomosNoObjetivo() {
+    int cromossomosNoObjetivo = 0;
+    for (int i= 0; i < tamanho; i++) {
+      if (cromossomos[i].acertou) {
+        cromossomosNoObjetivo++;
       }
-      agentesNovos[i].mov = m;
-      agentesNovos[i] = mutacao(agentesNovos[i]);
     }
-    print("cabo o role \n");
-    agentes = agentesNovos;
+    return cromossomosNoObjetivo;
+  }
+  
+  void proxGeracao() {
+    geracao++;
     
-  }
-  
-  void calcFitness(){
-    for(int i= 0; i < size; i++){
-      agentes[i].calcFitness();
+    // Calculo do fitness de cada cromossomo
+    for (int i= 0; i < tamanho; i++) {
+      cromossomos[i].calcFitness();
     }
-  
+    
+    // Criação da nova população
+    Cromossomo[] cromossomosNovos = new Cromossomo[tamanho];
+    
+    // Criação de cada novo cromossomo
+    for (int i= 0; i < tamanho; i++) {
+      Cromossomo pai = selecionaPai();
+      cromossomosNovos[i] = mutacao(pai);
+    }
+    
+    // Substituindo a população anterior
+    cromossomos = cromossomosNovos;
   }
   
-  Agente selecionaPai (){
-    Agente escolhido = agentes[int(random(size))];
-    int index = 0;
-    for(int i= 0; i < 7; i++){
-      index = int(random(size));
-      if(agentes[index].fitness > escolhido.fitness){
-        escolhido = agentes[index];
+  Cromossomo selecionaPai() {
+    Cromossomo escolhido1 = cromossomos[int(random(tamanho))];
+    Cromossomo escolhido2 = cromossomos[int(random(tamanho))];
+    
+    if (escolhido1.fitness > escolhido2.fitness) {
+      return escolhido1;
+    }
+    return escolhido2;
+  }
+  
+  Cromossomo mutacao(Cromossomo pai) {
+    Cromossomo cromossomoNovo =  new Cromossomo(pai);
+    for (int i = 0; i < qtdMovimentosASeremRealizados; i++) {
+      int resultado = int(random(200)); //0.5%
+      if (resultado == 0) {
+        float randomAngle = random(2 * PI);
+        cromossomoNovo.mov.movimento[i] = PVector.fromAngle(randomAngle);
+        cromossomoNovo.mov.movimento[i].x *= 8;
+        cromossomoNovo.mov.movimento[i].y *= 8;
       }
     }
-    return  escolhido;
-  }
-  
-  Agente mutacao(Agente pai){
-    Agente novoA = pai;
-    for (int i = 0; i < pai.qtdMovs; i++){
-      int muta = int(random(200));
-      if(muta < 1){
-        float randomAngle = random(2*PI);
-        novoA.mov.direcao[i] =  PVector.fromAngle(randomAngle);
-        novoA.mov.direcao[i].x += novoA.mov.dicx;
-        novoA.mov.direcao[i].y += novoA.mov.dicy;
-        novoA.mov.direcao[i].x *= 8;
-        novoA.mov.direcao[i].y *= 8;
-      }
-    }
-    return novoA;
+    return cromossomoNovo;
   }
 }

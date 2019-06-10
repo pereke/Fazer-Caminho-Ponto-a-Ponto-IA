@@ -1,30 +1,33 @@
-Populacao p;
+Populacao pop;
 PVector objetivo;
-int tamanho;
+int tamanho = 1500;
+int qtdMovimentosASeremRealizados = 1000;
+int geracao = 0;
+int cromossomosNoObjetivo = 0;
 
 
 void setup() {
   //fullScreen();
-  tamanho = 1500;
   size(1366, 768);
   background(255);
   frameRate(144);
-  p = new Populacao(tamanho);  
+  pop = new Populacao();  
   objetivo = new PVector(width/2, 40);
 }
 
 
-
 void draw() {
-  if (p.finalizou()){
-    print("entrou na prox geracao \n");
-    p.proxGeracao();
-  }else{
+  if (pop.finalizou()) {
+    println("Fim da geração " + geracao);
+    cromossomosNoObjetivo = pop.cromossomosNoObjetivo();
+    println("Cromossomos que atigiram o objetivo: " + cromossomosNoObjetivo);
+    pop.proxGeracao();
+    println("---------------------------------------");
+  } else {
     background(255);
     fill(255, 0, 0);
     ellipse(objetivo.x, objetivo.y, 10, 10);
-    p.move();
-    p.show();
+    pop.move();
+    pop.show();
   }
-
 }
