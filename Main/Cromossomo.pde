@@ -40,6 +40,7 @@ class Cromossomo {
       fill(255, 255, 0);
       if (melhorGeracaoAnterior) {
         int i = 0;
+        print(mov.indice + " - ");
         for (; i < mov.indice - 1; i++ ) {
           line(posAnterior[i].x, posAnterior[i].y, posAnterior[i + 1].x, posAnterior[i + 1].y);
         }
@@ -64,7 +65,7 @@ class Cromossomo {
       // Se bateu nas etremidade da janela ele não se moverá
       if (pos.x < 2|| pos.y < 2 || pos.x > width-2 || pos.y > height -2) {
         parado = true;
-        mov.indice = qtdMovimentosASeremRealizados*2;
+        mov.indice = qtdMovimentosASeremRealizados;
       }
 
       // Se bateu no obstáculo ele não se moverá
@@ -95,7 +96,7 @@ class Cromossomo {
         //if (parado) {
         //  fitness = 1 / ( 1000 / mov.indice * dist(pos.x, pos.y, objetivo.x, objetivo.y));
         //} else {
-          fitness = 1 / (mov.indice * dist(pos.x, pos.y, objetivo.x, objetivo.y));
+          fitness = 1 / ((dist(pos.x, pos.y, objetivo.x, objetivo.y)*dist(pos.x, pos.y, objetivo.x, objetivo.y)) + mov.indice);
         //}  
       }
     }

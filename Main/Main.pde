@@ -22,6 +22,7 @@ void setup() {
   background(255);
   frameRate(144);
   pop = new Populacao();  
+  print(width/3);
   objetivo = new PVector(width/2, 40);
   numPassos = new int[5];
   for(int i = 0; i < 5; i++){
@@ -30,7 +31,7 @@ void setup() {
   // Obstáculos
   obstaculos[0][0] = width / 3; // Coordenada X do retângulo
   obstaculos[0][1] = 300; // Coordenada Y do retângulo
-  obstaculos[0][2] = 600; // Tamanho em X do retângulo
+  obstaculos[0][2] = 456; // Tamanho em X do retângulo
   obstaculos[0][3] = 10; // Tamanho em Y do retângulo
   
   obstaculos[1][0] = 50; // Coordenada X do retângulo
