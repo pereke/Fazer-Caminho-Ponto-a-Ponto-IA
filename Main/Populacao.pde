@@ -2,27 +2,21 @@ class Populacao {
   Cromossomo[] cromossomos;
   
   Populacao() {
-    cromossomos = new Cromossomo[tamanho];
-    for (int i = 0; i < tamanho; i++) {
+    cromossomos = new Cromossomo[tamanhoPopulacao];
+    for (int i = 0; i < tamanhoPopulacao; i++) {
       cromossomos[i] = new Cromossomo();
     }
   }
   
-  void show() {
-    fill(255, 255, 0);
-    for (int i= 0; i < tamanho; i++) {
-      ellipse(cromossomos[i].pos.x, cromossomos[i].pos.y, 8, 8);
+  void draw() {
+    for (int i= 0; i < tamanhoPopulacao; i++) {
+      cromossomos[i].movimentar();
+      cromossomos[i].draw();
     }
   }
   
-  void move() {
-      for (int i= 0; i < tamanho; i++) {
-        cromossomos[i].move();
-      }
-  }
-  
   boolean finalizou() {
-    for (int i= 0; i < tamanho; i++) {
+    for (int i= 0; i < tamanhoPopulacao; i++) {
       if (!(cromossomos[i].acertou || cromossomos[i].parado)) {
         return false;
       }
@@ -30,32 +24,36 @@ class Populacao {
     return true;
   }
   
-  int cromossomosNoObjetivo() {
-    int cromossomosNoObjetivo = 0;
-    for (int i= 0; i < tamanho; i++) {
-      if (cromossomos[i].acertou) {
-        cromossomosNoObjetivo++;
-      }
-    }
-    return cromossomosNoObjetivo;
-  }
-  
   void proxGeracao() {
     geracao++;
     
     // Calculo do fitness de cada cromossomo
-    for (int i= 0; i < tamanho; i++) {
+    for (int i= 0; i < tamanhoPopulacao; i++) {
       cromossomos[i].calcFitness();
     }
     
     // Criação da nova população
-    Cromossomo[] cromossomosNovos = new Cromossomo[tamanho];
+    Cromossomo[] cromossomosNovos = new Cromossomo[tamanhoPopulacao];
     
+    float melhorFitness = 0;
+    int indiceMelhorFitness = 0;
     // Criação de cada novo cromossomo
-    for (int i= 0; i < tamanho; i++) {
+    for (int i= 0; i < tamanhoPopulacao; i++) {
+      if (cromossomos[i].fitness > melhorFitness) {
+        melhorFitness = cromossomos[i].fitness; 
+        indiceMelhorFitness = i;
+      }
       Cromossomo pai = selecionaPai();
       cromossomosNovos[i] = mutacao(pai);
     }
+    
+    // Pegando o melhor cromossomo da geração anterior
+    Cromossomo melhorDaGeracao = new Cromossomo(cromossomos[indiceMelhorFitness]);
+    melhorDaGeracao.melhorGeracaoAnterior = true;
+    
+    // Adiciona o melhor da geração anterior na nova população
+    // Ele irá entrar no lugar de um cromossomo aleatório
+    cromossomosNovos[int(random(tamanhoPopulacao))] = melhorDaGeracao;
     
     // Substituindo a população anterior
     cromossomos = cromossomosNovos;
@@ -63,8 +61,8 @@ class Populacao {
   }
   
   Cromossomo selecionaPai() {
-    Cromossomo escolhido1 = cromossomos[int(random(tamanho))];
-    Cromossomo escolhido2 = cromossomos[int(random(tamanho))];
+    Cromossomo escolhido1 = cromossomos[int(random(tamanhoPopulacao))];
+    Cromossomo escolhido2 = cromossomos[int(random(tamanhoPopulacao))];
     
     if (escolhido1.fitness > escolhido2.fitness) {
       return escolhido1;

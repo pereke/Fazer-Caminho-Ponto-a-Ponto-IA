@@ -1,13 +1,20 @@
+// Váriaveis relativas ao algoritmo genético
+int tamanhoPopulacao = 1500;
+int qtdMovimentosASeremRealizados = 1000;
+int qtdMaximaGeracoes = 80;
+int geracoesParaContagem = 10;
+int geracoesSemMudancaParada = 10;
+//-------------------------------------------
 Populacao pop;
 PVector objetivo;
-int tamanho = 1500;
-int qtdMovimentosASeremRealizados = 1000;
 int geracao = 0;
-int cromossomosNoObjetivo = 0;
-boolean primeiroAcertou = false;
 int numPassos[];
+boolean primeiroAcertou = false;
 boolean pontoParada = false;
-int sumDif = 21;
+int diferenca = -1;
+int contagemParaFinalizar = 0;
+int qtdObstaculos = 3;
+int obstaculos[][] = new int[qtdObstaculos][4];
 
 void setup() {
   //fullScreen();
@@ -20,32 +27,67 @@ void setup() {
   for(int i = 0; i < 5; i++){
     numPassos[i] = 0;
   }
+  // Obstáculos
+  obstaculos[0][0] = width / 3; // Coordenada X do retângulo
+  obstaculos[0][1] = 300; // Coordenada Y do retângulo
+  obstaculos[0][2] = 600; // Tamanho em X do retângulo
+  obstaculos[0][3] = 10; // Tamanho em Y do retângulo
+  
+  obstaculos[1][0] = 50; // Coordenada X do retângulo
+  obstaculos[1][1] = 500; // Coordenada Y do retângulo
+  obstaculos[1][2] = 300; // Tamanho em X do retângulo
+  obstaculos[1][3] = 15; // Tamanho em Y do retângulo
+  
+  obstaculos[2][0] = 950; // Coordenada X do retângulo
+  obstaculos[2][1] = 500; // Coordenada Y do retângulo
+  obstaculos[2][2] = 300; // Tamanho em X do retângulo
+  obstaculos[2][3] = 15; // Tamanho em Y do retângulo
 }
 
-
 void draw() {
-  if (geracao>4){
-    sumDif=max(numPassos)-min(numPassos);
-  }
-  if (sumDif > 3){
-    if (pop.finalizou()) {
-      
-      println("Fim da geração " + geracao);
-      cromossomosNoObjetivo = pop.cromossomosNoObjetivo();
-      println("Cromossomos que atigiram o objetivo: " + cromossomosNoObjetivo);
-      numPassos[geracao%5] = qtdMovimentosASeremRealizados;
-      print(numPassos[0], numPassos[1], numPassos[2], numPassos[3], numPassos[4]);
-      pop.proxGeracao();
-      println("---------------------------------------");
-    } else {
-      background(255);
-      fill(255, 0, 0);
-      ellipse(objetivo.x, objetivo.y, 10, 10);
-      pop.move();
-      pop.show();
+  if (pop.finalizou()) {
+    // Critérios de parada
+    if (geracao > geracoesParaContagem) {
+      if (geracao > qtdMaximaGeracoes) {
+        noLoop(); // Para de chamar a função draw
+        println("Critério de parada atingido! Se passaram " + qtdMaximaGeracoes + " gerações.");
+        println("Número mínimo de passos para se tentar chegar ao objetivo: ", min(numPassos));
+        return;
+      }
+      // Só começará a contar a diferença após a geração 5
+      diferenca = max(numPassos) - min(numPassos);
+      if (diferenca == 0) {
+        //println("Contagem para finalizar: ", contagemParaFinalizar + 1);
+        if (contagemParaFinalizar == geracoesSemMudancaParada) {
+           noLoop(); // Para de chamar a função draw
+           println("Critério de parada atingido! Se passaram 5 gerações sem melhora no número de passos.");
+           println("Número mínimo de passos para se tentar chegar ao objetivo: ", min(numPassos));
+           return;
+        }
+        contagemParaFinalizar++;
+      } else {
+        if (contagemParaFinalizar > 0) {
+          // Houve uma melhora, então a contagem é zerada
+          contagemParaFinalizar = 0;
+        }
+      } 
     }
-    fill(0, 0, 255);
-    rect(width/3, 300, 600, 10);
+    // Próxima geração
+    println("Fim da geração " + geracao);
+    numPassos[geracao % 5] = qtdMovimentosASeremRealizados;
+    print(numPassos[0], numPassos[1], numPassos[2], numPassos[3], numPassos[4]);
+    pop.proxGeracao();
+    println("\n---------------------------------------");
+  } else {
+    // Desenhando os cromossomos
+    background(255);
+    fill(255, 0, 0);
+    ellipse(objetivo.x, objetivo.y, 10, 10);
+    pop.draw();
   }
-  
+  // Desenhando os obstáculos
+  fill(0, 0, 0);
+  for (int i = 0; i < qtdObstaculos; i++) {
+    rect(obstaculos[i][0], obstaculos[i][1], obstaculos[i][2], obstaculos[i][3]);
+  }
 }
