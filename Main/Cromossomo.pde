@@ -40,7 +40,6 @@ class Cromossomo {
       fill(255, 255, 0);
       if (melhorGeracaoAnterior) {
         int i = 0;
-        print(mov.indice + " - ");
         for (; i < mov.indice - 1; i++ ) {
           line(posAnterior[i].x, posAnterior[i].y, posAnterior[i + 1].x, posAnterior[i + 1].y);
         }
